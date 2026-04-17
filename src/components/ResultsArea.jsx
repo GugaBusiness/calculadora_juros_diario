@@ -32,6 +32,10 @@ export function ResultsArea({ resultData, loanRequest, onReset }) {
       msg += `- ${parcelaNum}ª Parcela: ${dataFormatada} - ${formatCurrency(v)}\n`;
     });
 
+    msg += `\n*DADOS PARA PAGAMENTO (PIX):*\n`;
+    msg += `Chave PIX: 63.054.273/0001-39\n`;
+    msg += `Beneficiário: Luciana Cordeiro Barbosa\n`;
+
     const link = `https://wa.me/55${loanRequest.whatsapp}?text=${encodeURIComponent(msg)}`;
     window.open(link, '_blank');
   };
