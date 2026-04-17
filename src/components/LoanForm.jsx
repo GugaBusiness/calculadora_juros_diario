@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Calculator, Loader2 } from 'lucide-react';
+import { maskCurrencyInput, maskWhatsApp } from '../utils/masks';
 
 export function LoanForm({ onSubmit, isLoading }) {
   const [formData, setFormData] = useState({
@@ -12,47 +13,19 @@ export function LoanForm({ onSubmit, isLoading }) {
   });
 
   const handleValorChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // keep only digits
-    if (value === '') {
-      setFormData(prev => ({ ...prev, valorRaw: '', valorFormatado: '' }));
-      return;
-    }
-    
-    // Convert to minor units (cents) to major units
-    const numValue = parseInt(value, 10) / 100;
-    const formatted = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(numValue);
-    
+    const { raw, formatted } = maskCurrencyInput(e.target.value);
     setFormData(prev => ({ 
       ...prev, 
-      valorRaw: numValue, 
+      valorRaw: raw, 
       valorFormatado: formatted 
     }));
   };
 
   const handleWhatsappChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    let formatted = value;
-    
-    // Simple mask for (XX) XXXXX-XXXX
-    if (value.length <= 11) {
-      formatted = value.replace(/^(\d{2})(\d{4,5})(\d{4})$/, '($1) $2-$3');
-      if (value.length > 2 && value.length < 7) {
-        formatted = `(${value.slice(0,2)}) ${value.slice(2)}`;
-      } else if (value.length >= 7) {
-        formatted = `(${value.slice(0,2)}) ${value.slice(2, value.length - 4)}-${value.slice(value.length - 4)}`;
-      }
-    } else {
-      // Keep only first 11 digits
-      value = value.slice(0, 11);
-      formatted = value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-    }
-
+    const { raw, formatted } = maskWhatsApp(e.target.value);
     setFormData(prev => ({
       ...prev,
-      whatsappRaw: value,
+      whatsappRaw: raw,
       whatsappFormatado: formatted
     }));
   };

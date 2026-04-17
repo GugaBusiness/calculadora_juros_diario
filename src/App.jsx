@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { Toaster, toast } from 'sonner';
 import { Building2 } from 'lucide-react';
 import { LoanForm } from './components/LoanForm';
 import { ResultsArea } from './components/ResultsArea';
+import { generateLoanSchedule } from './services/api';
 
 function App() {
   const [resultData, setResultData] = useState(null);
@@ -14,23 +14,11 @@ function App() {
     setIsLoading(true);
     setLoanRequest(data); // Save the request data for the WhatsApp message
     try {
-      const payload = {
-        valor_emprestado: data.valor,
-        taxa_juros: data.taxa,
-        data_inicial: data.dataInicial,
-        whatsapp: data.whatsapp
-      };
-
-      const response = await axios.post(
-        'https://nucleo-n8n-webhook.mu1hev.easypanel.host/webhook/calcula_juros_diario',
-        payload
-      );
-      
-      setResultData(response.data);
+      const dataResponse = await generateLoanSchedule(data);
+      setResultData(dataResponse);
       toast.success('Cronograma gerado com sucesso!');
     } catch (error) {
-      console.error(error);
-      toast.error('Ocorreu um erro ao gerar o cronograma. Tente novamente mais tarde.');
+      toast.error(error.message || 'Ocorreu um erro ao gerar o cronograma.');
     } finally {
       setIsLoading(false);
     }

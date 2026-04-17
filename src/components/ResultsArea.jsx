@@ -1,20 +1,6 @@
-import { format, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { RefreshCcw, Landmark, Percent, CalendarDays, Wallet } from 'lucide-react';
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
-
-const formatCurrency = (value) => {
-  if (!value && value !== 0) return 'R$ 0,00';
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-};
+import { formatCurrency, formatDateExt } from '../utils/formatters';
+import { SummaryCard } from './ui/SummaryCard';
 
 export function ResultsArea({ resultData, loanRequest, onReset }) {
   // Defensive values based on expected API response or Form Request
@@ -38,12 +24,7 @@ export function ResultsArea({ resultData, loanRequest, onReset }) {
     msg += `*CRONOGRAMA DE PAGAMENTO:*\n`;
     
     cronograma.forEach((item, index) => {
-      let dataFormatada = item.data_vencimento || item.data;
-      if (dataFormatada && dataFormatada.includes('-')) {
-        try {
-          dataFormatada = format(parseISO(dataFormatada), 'dd/MM/yyyy', { locale: ptBR });
-        } catch(e) {}
-      }
+      let dataFormatada = formatDateExt(item.data_vencimento || item.data);
       
       const v = item.valor || valorDiario;
       const parcelaNum = item.parcela || index + 1;
@@ -123,12 +104,7 @@ export function ResultsArea({ resultData, loanRequest, onReset }) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {cronograma.map((item, index) => {
-                  let dateStr = item.data_vencimento || item.data || '';
-                  if (dateStr && dateStr.includes('-')) {
-                    try {
-                      dateStr = format(parseISO(dateStr), 'dd/MM/yyyy');
-                    } catch(e) {}
-                  }
+                  let dateStr = formatDateExt(item.data_vencimento || item.data);
 
                   const v = item.valor || valorDiario;
                   const num = item.parcela || index + 1;
@@ -152,26 +128,6 @@ export function ResultsArea({ resultData, loanRequest, onReset }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function SummaryCard({ title, value, icon, highlight }) {
-  return (
-    <div className={cn(
-      "p-4 rounded-xl border flex flex-col gap-2",
-      highlight ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-200"
-    )}>
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{title}</span>
-      </div>
-      <span className={cn(
-        "text-lg md:text-xl font-bold",
-        highlight ? "text-emerald-700" : "text-slate-800"
-      )}>
-        {value}
-      </span>
     </div>
   );
 }
